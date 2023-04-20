@@ -12,20 +12,30 @@ var mixerAnimacao;
 var relogio;
 var importer;
 
-importer.load('./Objetos/Samba Dancing. fbx', function (object) {
+importer.load('./Objetos/Samba Dancing.fbx', function (object) {
    
     mixerAnimacao = new THREE.AnimationMixer (object);
     
     var action = mixerAnimacao.clipAction(object.animations [0]);
     action.play();
     
-    object.traverse(function (child)){
+    object.traverse(function (child){
         if(child.isMesh){
             child.castShadow = true;
             child.receiveShadow = true;
         }
-    }};
+    });
 
+    object.scale.x=0.01;
+    object.scale.z=0.01;
+    object.scale.y=0.01;
+
+    object.position.x=1.5;
+    object.position.y=-0.5;
+    object.position.z= -6;
+
+    objetoImportado = object;
+});
 var camaraPerspetiva = new THREE.PerspectiveCamera(45,4/3,0.1,100);
 
 renderer.setSize(window.innerHeight -80, window.innerWidth -15);
@@ -61,6 +71,11 @@ function Start(){
 function loop(){
 
     meshCubo.rotateY(Math.PI/180*1);
+
+    if(mixerAnimacao){
+        mixerAnimacao.update(relogio,getDelta());
+    }
+
     renderer.render(cena,camaraPerspetiva);
 
     requestAnimationFrame(loop);
