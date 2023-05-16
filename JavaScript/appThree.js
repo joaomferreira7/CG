@@ -1,62 +1,32 @@
 import * as THREE from 'three';
 import {FBXLoader}  from 'FBXLoader';
-import { PointerLockControls } from 'PointerLockControls';
+import {PointerLockControls} from 'PointerLockControls';
+import {OBJLoader}  from 'OBJLoader';
+import {GLTFLoader}  from 'GLTFLoader';
  
 document.addEventListener('DOMContentLoaded', Start);
-
+ 
 var cena = new THREE.Scene();
-var camara = new THREE.OrthographicCamera(-1 ,1, 1, -1, -10 , 10);
 var renderer = new THREE.WebGLRenderer();
-var camaraPerspetiva = new THREE.PerspectiveCamera(45,4/3,0.1,100);
 
-renderer.setSize(window.innerHeight-15, window.innerWidth-80);
+var camaraPerspetiva = new THREE.PerspectiveCamera(70,window.innerWidth / window.innerHeight,0.1,100);
+camaraPerspetiva.position.set(0,-12,0);
+
+renderer.setSize(window.innerHeight +1820, window.innerWidth -1900);
 renderer.setClearColor(0xaaaaaa);
 
 document.body.appendChild(renderer.domElement);
-
-var geometriaCubo = new THREE.BoxGeometry(1,1,1);
-
-var textura = new THREE.TextureLoader().load('./Images/ceu.jpg');
-var materialTextura = new THREE.MeshStandardMaterial({map:textura});
-
-var meshCubo = new THREE.Mesh(geometriaCubo, materialTextura);
-meshCubo.translateZ(-6.0);
 
 var objetoImportado;
 var mixerAnimacao;
 var relogio = new THREE.Clock();
 var importer = new FBXLoader();
+var importerOBJ = new OBJLoader();
+var loaderGLTF = new GLTFLoader();
 
-importer.load('./Objetos/dusty-path-in-the-fields/source/the_way/the_way.fbx', function (object) {
-   
-    mixerAnimacao = new THREE.AnimationMixer(object);
-    
-    //var action = mixerAnimacao.clipAction(object.animations[0]);
-    //action.play();
-    
-    object.traverse(function (child){
-        if(child.isMesh){
-            child.castShadow = true;
-            child.receiveShadow = true;
-        }
-    });
-
-    cena.add(object);
-
-    object.scale.x=0.0001;
-    object.scale.z=0.0001;
-    object.scale.y=0.0001;
-
-    object.position.x=1.5;
-    object.position.y=-0.5;
-    object.position.z= -6;
-
-    objetoImportado = object;
-});
+cenario();
 
 const controls = new PointerLockControls(camaraPerspetiva,renderer.domElement)
-controls.addEventListener('lock', function(){});
-controls.addEventListener('unlock', function(){});
 
 document.addEventListener(
     'click',
@@ -65,7 +35,6 @@ document.addEventListener(
     },
     false   
 );
-
 
 document.addEventListener("keydown", onDocumentKeyDown, false);
 function onDocumentKeyDown(event){
@@ -94,16 +63,13 @@ function onDocumentKeyDown(event){
 
 function Start(){
 
-    cena.add(meshCubo);
+    var DirecLight = new THREE.DirectionalLight(0xffffff, 2);
+    var AmbientLight = new THREE.AmbientLight( 0xffffff );
 
-    var focoLuz = new THREE.SpotLight('#ffffff',1);
+    DirecLight.position.set(0,50,0);
 
-    focoLuz.position.y=5;
-    focoLuz.position.z=10;
-
-    focoLuz.lookAt(meshCubo.position);
-
-    cena.add(focoLuz);
+    cena.add(DirecLight);
+    cena.add(AmbientLight);
 
     renderer.render(cena,camaraPerspetiva);
     requestAnimationFrame(loop);
@@ -128,14 +94,14 @@ function Start(){
     for (var i=0; i<6; i++)
         materialArray[i].side = THREE.BackSide;
 
-    var skyboxGeo = new THREE.BoxGeometry(100,100,100);
+    var skyboxGeo = new THREE.BoxGeometry(25,25,25);
     var skybox = new THREE.Mesh(skyboxGeo,materialArray);
     cena.add(skybox);
+
+  
 }
 
 function loop(){
-
-    meshCubo.rotateY(Math.PI/180*1);
 
     //f(mixerAnimacao){
       //  mixerAnimacao.update(relogio.getDelta());
@@ -145,3 +111,64 @@ function loop(){
 
     requestAnimationFrame(loop);
 }
+
+function cenario(){
+    
+    importer.load('./Objetos/cena/source/cena.fbx', function (object) {
+   
+        //mixerAnimacao = new THREE.AnimationMixer(object);
+        
+        //var action = mixerAnimacao.clipAction(object.animations[0]);
+        //action.play();
+    
+        object.scale.x=.005;
+        object.scale.z=.005;
+        object.scale.y=.005;
+    
+        object.position.x=0;
+        object.position.y=-12.4;
+        object.position.x=0;
+
+        objetoImportado = object;
+       
+        cena.add(object);
+
+    });
+}
+
+function OBJ(){
+    
+    importerOBJ.load('./Objetos/cena/source/cena.obj', function (object) {
+     
+        object.position.x=0;
+        object.position.z=0;
+        object.position.y=-12;
+
+        object.scale.x=.05;
+        object.scale.z=.05;
+        object.scale.y=.05;
+    
+        objetoImportado = object;
+
+        cena.add(object);
+
+    });
+}
+
+function GLTF() {
+    loaderGLTF.load('./Objetos/cena/source/cena2.gltf', function (gltf) {
+      gltf.scene.traverse(function (child) {
+        if (child.isMesh) {
+          child.scale.set(.1, .1, .1);
+          child.position.set(0, -11, 0);
+          
+        }
+      });
+  
+      cena.add(gltf.scene);
+    });
+  }
+  
+
+
+  
