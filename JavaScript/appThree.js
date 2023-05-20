@@ -16,8 +16,8 @@ var importer = new FBXLoader();
 const controls = new PointerLockControls(camaraPerspetiva,renderer.domElement)
 
 
-camaraPerspetiva.position.set(0,.16,0);
-renderer.setSize(window.innerHeight +1820, window.innerWidth -1900);
+camaraPerspetiva.position.set(0,-12,0);
+renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x87ceeb);
 document.body.appendChild(renderer.domElement);
 document.addEventListener(
@@ -116,19 +116,19 @@ function cenario(){
         //var action = mixerAnimacao.clipAction(object.animations[0]);
         //action.play();
     
-        object.scale.x=.0001;
-        object.scale.z=.0001;
-        object.scale.y=.0001;
+        object.scale.x=.005;
+        object.scale.z=.005;
+        object.scale.y=.005;
     
         object.position.x=0;
-        object.position.y=0;
+        object.position.y=-12.4;
         object.position.x=0;
        
         cena.add(object);
 
     });
 }
-
+/*
 function CreateScene(){
 
     //CHAO
@@ -193,4 +193,4 @@ function checkCollision() {
       }
     }
   }
-  
+  */
