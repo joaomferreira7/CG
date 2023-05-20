@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', Start);
 var cena = new THREE.Scene();
 var renderer = new THREE.WebGLRenderer();
 
-var camaraPerspetiva = new THREE.PerspectiveCamera(70,window.innerWidth / window.innerHeight,0.1,100);
-camaraPerspetiva.position.set(0,-12,0);
+var camaraPerspetiva = new THREE.PerspectiveCamera(40,window.innerWidth / window.innerHeight,0.1,100);
+camaraPerspetiva.position.set(0,1,0);
 
 renderer.setSize(window.innerHeight +1820, window.innerWidth -1900);
 renderer.setClearColor(0xaaaaaa);
@@ -26,6 +26,7 @@ var loaderGLTF = new GLTFLoader();
 
 cenario();
 
+
 const controls = new PointerLockControls(camaraPerspetiva,renderer.domElement)
 
 document.addEventListener(
@@ -40,16 +41,16 @@ document.addEventListener("keydown", onDocumentKeyDown, false);
 function onDocumentKeyDown(event){
     var keyCode = event.which;
     if(keyCode == 87){
-        controls.moveForward(0.25)
+        controls.moveForward(0.15)
     } 
     else if(keyCode == 83){
-        controls.moveForward(-0.25)
+        controls.moveForward(-0.15)
     }
     else if(keyCode == 65){
-        controls.moveRight(-0.25)
+        controls.moveRight(-0.15)
     }
     else if(keyCode == 68){
-        controls.moveRight(0.25)
+        controls.moveRight(0.15)
     }
     else if(keyCode == 32){
         if(meshCubo.parent ===cena){
@@ -68,7 +69,7 @@ function Start(){
 
     DirecLight.position.set(0,50,0);
 
-    cena.add(DirecLight);
+    //cena.add(DirecLight);
     cena.add(AmbientLight);
 
     renderer.render(cena,camaraPerspetiva);
@@ -94,7 +95,7 @@ function Start(){
     for (var i=0; i<6; i++)
         materialArray[i].side = THREE.BackSide;
 
-    var skyboxGeo = new THREE.BoxGeometry(25,25,25);
+    var skyboxGeo = new THREE.BoxGeometry(15,15,15);
     var skybox = new THREE.Mesh(skyboxGeo,materialArray);
     cena.add(skybox);
 
@@ -121,54 +122,15 @@ function cenario(){
         //var action = mixerAnimacao.clipAction(object.animations[0]);
         //action.play();
     
-        object.scale.x=.005;
-        object.scale.z=.005;
-        object.scale.y=.005;
+        object.scale.x=.0001;
+        object.scale.z=.0001;
+        object.scale.y=.0001;
     
         object.position.x=0;
-        object.position.y=-12.4;
+        object.position.y=0;
         object.position.x=0;
-
-        objetoImportado = object;
        
         cena.add(object);
 
     });
 }
-
-function OBJ(){
-    
-    importerOBJ.load('./Objetos/cena/source/cena.obj', function (object) {
-     
-        object.position.x=0;
-        object.position.z=0;
-        object.position.y=-12;
-
-        object.scale.x=.05;
-        object.scale.z=.05;
-        object.scale.y=.05;
-    
-        objetoImportado = object;
-
-        cena.add(object);
-
-    });
-}
-
-function GLTF() {
-    loaderGLTF.load('./Objetos/cena/source/cena2.gltf', function (gltf) {
-      gltf.scene.traverse(function (child) {
-        if (child.isMesh) {
-          child.scale.set(.1, .1, .1);
-          child.position.set(0, -11, 0);
-          
-        }
-      });
-  
-      cena.add(gltf.scene);
-    });
-  }
-  
-
-
-  
