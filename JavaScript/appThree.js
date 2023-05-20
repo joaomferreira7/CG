@@ -1,34 +1,25 @@
 import * as THREE from 'three';
 import {FBXLoader}  from 'FBXLoader';
 import {PointerLockControls} from 'PointerLockControls';
-import {OBJLoader}  from 'OBJLoader';
-import {GLTFLoader}  from 'GLTFLoader';
  
 document.addEventListener('DOMContentLoaded', Start);
  
+//VARIAVEIS
 var cena = new THREE.Scene();
 var renderer = new THREE.WebGLRenderer();
-
-var camaraPerspetiva = new THREE.PerspectiveCamera(40,window.innerWidth / window.innerHeight,0.1,100);
-camaraPerspetiva.position.set(0,1,0);
-
-renderer.setSize(window.innerHeight +1820, window.innerWidth -1900);
-renderer.setClearColor(0xaaaaaa);
-
-document.body.appendChild(renderer.domElement);
-
+var camaraPerspetiva = new THREE.PerspectiveCamera(70,window.innerWidth / window.innerHeight,0.1,100);
+const walls = [];
 var objetoImportado;
 var mixerAnimacao;
 var relogio = new THREE.Clock();
 var importer = new FBXLoader();
-var importerOBJ = new OBJLoader();
-var loaderGLTF = new GLTFLoader();
-
-cenario();
-
-
 const controls = new PointerLockControls(camaraPerspetiva,renderer.domElement)
 
+
+camaraPerspetiva.position.set(0,.16,0);
+renderer.setSize(window.innerHeight +1820, window.innerWidth -1900);
+renderer.setClearColor(0x87ceeb);
+document.body.appendChild(renderer.domElement);
 document.addEventListener(
     'click',
     function(){
@@ -36,8 +27,11 @@ document.addEventListener(
     },
     false   
 );
-
 document.addEventListener("keydown", onDocumentKeyDown, false);
+
+//CreateScene();
+cenario();
+
 function onDocumentKeyDown(event){
     var keyCode = event.which;
     if(keyCode == 87){
@@ -75,12 +69,12 @@ function Start(){
     renderer.render(cena,camaraPerspetiva);
     requestAnimationFrame(loop);
 
-    var texture_dir = new THREE.TextureLoader().load('./Images/sky.jpg');
-    var texture_esq = new THREE.TextureLoader().load('./Images/sky.jpg');
-    var texture_up = new THREE.TextureLoader().load('./Images/sky.jpg');
-    var texture_dn = new THREE.TextureLoader().load('./Images/terra.jpg');
-    var texture_bk = new THREE.TextureLoader().load('./Images/sky.jpg');
-    var texture_ft = new THREE.TextureLoader().load('./Images/sky.jpg');
+    var texture_dir = new THREE.TextureLoader().load('./Images/asphalt.jpg');
+    var texture_esq = new THREE.TextureLoader().load('./Images/asphalt.jpg');
+    var texture_up = new THREE.TextureLoader().load('./Images/asphalt.jpg');
+    var texture_dn = new THREE.TextureLoader().load('./Images/asphalt.jpg');
+    var texture_bk = new THREE.TextureLoader().load('./Images/asphalt.jpg');
+    var texture_ft = new THREE.TextureLoader().load('./Images/asphalt.jpg');
 
     var materialArray = [];
 
@@ -97,20 +91,20 @@ function Start(){
 
     var skyboxGeo = new THREE.BoxGeometry(15,15,15);
     var skybox = new THREE.Mesh(skyboxGeo,materialArray);
-    cena.add(skybox);
+    //cena.add(skybox);
 
   
 }
 
 function loop(){
 
-    //f(mixerAnimacao){
-      //  mixerAnimacao.update(relogio.getDelta());
-    //}
+    //checkCollision();
 
     renderer.render(cena,camaraPerspetiva);
 
     requestAnimationFrame(loop);
+
+
 }
 
 function cenario(){
@@ -134,3 +128,69 @@ function cenario(){
 
     });
 }
+
+function CreateScene(){
+
+    //CHAO
+    let floorGeometry = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
+    floorGeometry.rotateX(-Math.PI / 2);
+    let floorTexture = new THREE.TextureLoader().load('./Images/grass.jpg');
+    floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+    floorTexture.repeat.set(20, 20);
+    const floorMaterial = new THREE.MeshPhongMaterial({
+        map: floorTexture
+    });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.position.x = 0;
+    floor.position.y = 0;
+    floor.position.z = 0;
+    cena.add(floor);
+
+    //PAREDES
+    const boxGeometry1 = new THREE.BoxGeometry(5, .3, .02);
+    const boxGeometry2 = new THREE.BoxGeometry(.02, .3, 5);
+    let wallTexture = new THREE.TextureLoader().load('./Images/Bricks.jpeg');
+    wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
+    wallTexture.repeat.set(30, 5);
+    const wallMaterial = new THREE.MeshPhongMaterial({
+        map: wallTexture
+    });
+    const wall1 = new THREE.Mesh(boxGeometry1, wallMaterial);
+    wall1.position.x = 0;
+    wall1.position.y = 0.15;
+    wall1.position.z = -2.5;
+
+    const wall2 = new THREE.Mesh(boxGeometry1, wallMaterial);
+    wall2.position.x = 0;
+    wall2.position.y = 0.15;
+    wall2.position.z = 2.5;
+
+    const wall3 = new THREE.Mesh(boxGeometry2, wallMaterial);
+    wall3.position.x = -2.5;
+    wall3.position.y = 0.15;
+    wall3.position.z = 0;
+
+    const wall4 = new THREE.Mesh(boxGeometry2, wallMaterial);
+    wall4.position.x = 2.5;
+    wall4.position.y = 0.15;
+    wall4.position.z = 0;
+
+    cena.add(wall1,wall2,wall3,wall4);
+    walls.push(wall1, wall2, wall3, wall4);
+}
+
+function checkCollision() {
+    const cameraPosition = camaraPerspetiva.position;
+  
+    for (let i = 0; i < walls.length; i++) {
+      const wall = walls[i];
+      if (cameraPosition.distanceTo(wall.position) < .1) {
+        // Colisão detectada!
+        // Ajuste a posição da câmera para evitar a colisão
+        const collisionNormal = cameraPosition.clone().sub(wall.position).normalize();
+        const safePosition = wall.position.clone().add(collisionNormal.multiplyScalar(wallSize));
+        camaraPerspetiva.position.copy(safePosition);
+      }
+    }
+  }
+  
