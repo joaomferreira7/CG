@@ -1,25 +1,20 @@
 import * as THREE from 'three';
 import {FBXLoader}  from 'FBXLoader';
 import {PointerLockControls} from 'PointerLockControls';
-import {OBJLoader}  from 'OBJLoader';
-import {GLTFLoader}  from 'GLTFLoader';
- 
+import { OrbitControls } from './OrbitControls.js';
+
 document.addEventListener('DOMContentLoaded', Start);
  
 //VARIAVEIS
-
+var mixers = [];
+var clock = new THREE.Clock();
 var cena = new THREE.Scene();
 var renderer = new THREE.WebGLRenderer();
-var camaraPerspetiva = new THREE.PerspectiveCamera(70,window.innerWidth / window.innerHeight,0.1,100);
-const walls = [];
-var objetoImportado;
-var mixerAnimacao;
-var relogio = new THREE.Clock();
-var importer = new FBXLoader();
+//var camaraPerspetiva = new THREE.PerspectiveCamera(50,window.innerWidth / window.innerHeight,0.1,100);
+var camaraPerspetiva = new THREE.PerspectiveCamera(50,4/3,0.1,100);
+const interac = new OrbitControls(camaraPerspetiva, renderer.domElement);
 const controls = new PointerLockControls(camaraPerspetiva,renderer.domElement)
-
-
-camaraPerspetiva.position.set(0,1,1.3);
+camaraPerspetiva.position.set(0,.1,1.3);
 renderer.setSize(window.innerHeight +1820, window.innerWidth -1900);
 renderer.setClearColor(0x87ceeb);
 document.body.appendChild(renderer.domElement);
@@ -38,6 +33,13 @@ CreateFence1();
 CreateFence2();
 CreateFence3();
 CreateFence4();
+//Giraffe();
+//Moose();
+//Elefant();
+Posts(0.1,.5, 4.7,-15);
+Posts(0.1,-.5, 4.7,-15);
+Posts(-0.1,.5, -4.7,15);
+Posts(-0.1,-.5, -4.7,15);
 
 
 function onDocumentKeyDown(event){
@@ -54,14 +56,6 @@ function onDocumentKeyDown(event){
     else if(keyCode == 68){
         controls.moveRight(0.05)
     }
-    else if(keyCode == 32){
-        if(meshCubo.parent ===cena){
-            cena.remove(meshCubo);
-        }
-        else{
-            cena.add(meshCubo);
-        }
-    }
 }
 
 function Start(){
@@ -74,7 +68,7 @@ function Start(){
     //cena.add(DirecLight);
     cena.add(AmbientLight);
 
-    renderer.render(cena,camaraPerspetiva);
+    
     requestAnimationFrame(loop);
 
     var texture_dir = new THREE.TextureLoader().load('./Images/asphalt.jpg');
@@ -106,9 +100,22 @@ function Start(){
 
 function loop(){
 
+    requestAnimationFrame( loop );
+
+				if ( mixers.length > 0 ) {
+
+					for ( var i = 0; i < mixers.length; i ++ ) {
+
+						mixers[ i ].update( clock.getDelta() );
+
+					}
+
+				}
+
     renderer.render(cena,camaraPerspetiva);
 
-    requestAnimationFrame(loop);
+    renderer.render(cena,camaraPerspetiva);
+
 
 }
 
@@ -312,7 +319,6 @@ function CreateScene(){
 
 
     cena.add(wall2,wall1,wall3,wall4);
-    walls.push(wall1, wall2, wall3, wall4);
 }
 
 function CreateFence1(){
@@ -550,7 +556,7 @@ function CreateFountain(){
 
     let wallTexture = new THREE.TextureLoader().load('./Images/wall.png');
     wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(30, 5);
+    wallTexture.repeat.set(3, 2);
     const wallMaterial = new THREE.MeshPhongMaterial({
         map: wallTexture
     });
@@ -637,6 +643,7 @@ function CreateFountain(){
 
 function cenario(){
     
+    var importer = new FBXLoader();
     importer.load('./Objetos/cena/source/cena.fbx', function (object) {
    
         //mixerAnimacao = new THREE.AnimationMixer(object);
@@ -697,4 +704,145 @@ function CreateTree(){
     tree.add(stem);
 
     cena.add(tree);
+}
+
+function Giraffe(){
+
+    // model
+    var loader = new FBXLoader();
+    loader.load( './Objetos/giraffe/source/untitled.fbx', function ( object ) {
+
+        object.mixer = new THREE.AnimationMixer( object );
+        mixers.push( object.mixer );
+
+        var action = object.mixer.clipAction( object.animations[ 1 ] );
+        action.play();
+
+        object.traverse( function ( child ) {
+        if ( child.isMesh ) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            
+
+        }});
+
+        object.rotateY(2);
+        object.position.set(-.3,0,.9);
+        object.scale.set(0.00002,.00002,0.00002);
+        cena.add( object );
+
+    } );      
+
+}
+
+function lion(){
+
+    // model
+    var loader = new FBXLoader();
+    loader.load( './Objetos/lion/source/untitled.fbx', function ( object ) {
+
+        object.mixer = new THREE.AnimationMixer( object );
+        mixers.push( object.mixer );
+
+        var action = object.mixer.clipAction( object.animations[ 0 ] );
+        action.play();
+
+        object.traverse( function ( child ) {
+        if ( child.isMesh ) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            
+
+        }});
+
+        object.rotateY(2);
+        object.position.set(-.55,0,.75);
+        object.scale.set(.0007,.0007,.0007);
+        cena.add( object );
+
+    } );      
+
+}
+
+function Moose(){
+
+    // model
+    var loader = new FBXLoader();
+    loader.load( './Objetos/moose/source/Moose_Walk.fbx', function ( object ) {
+
+        object.mixer = new THREE.AnimationMixer( object );
+        mixers.push( object.mixer );
+
+        var action1 = object.mixer.clipAction( object.animations[ 0 ] );
+        action1.play();
+        action1.timeScale = 2;
+
+        object.traverse( function ( child ) {
+        if ( child.isMesh ) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            
+
+        }});
+
+        object.rotateY(5);
+        object.position.set(.4,0,.7);
+        object.scale.set(0.0015,.0015,0.0015);
+        cena.add( object );
+
+    } );      
+
+}
+
+function Elefant(){
+
+    // model
+    var loader = new FBXLoader();
+    loader.load( './Objetos/gorilla/source/Gorilla+motions.fbx', function ( object ) {
+
+        object.mixer = new THREE.AnimationMixer( object );
+        mixers.push( object.mixer );
+
+        var action1 = object.mixer.clipAction( object.animations[ 0 ] );
+        action1.play();
+
+        object.traverse( function ( child ) {
+        if ( child.isMesh ) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            
+
+        }});
+
+        object.rotateY(5);
+        object.position.set(.4,.1,.7);
+        object.scale.set(0.0006,.0006,0.0006);
+        cena.add( object );
+
+    } );      
+
+}
+
+function Posts(x,z,w,t){
+
+    //CHAO
+    let floorGeometry = new THREE.PlaneBufferGeometry(.03, .03, 1, 1);
+    //floorGeometry.rotateX(-Math.PI / 2);
+    let floorTexture = new THREE.TextureLoader().load('./Images/coarkboard.png');
+    floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+    floorTexture.repeat.set(1,1);
+    const floorMaterial = new THREE.MeshPhongMaterial({
+        map: floorTexture
+    });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    //floorGeometry.rotateZ(45);
+    floor.rotation.z = THREE.MathUtils.degToRad(t);
+    floor.rotateY(w);
+
+    floor.position.x = x;
+    floor.position.y = 0.07;
+    floor.position.z = z;
+    
+    cena.add(floor);
+
 }
