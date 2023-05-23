@@ -6,16 +6,21 @@ import { OrbitControls } from './OrbitControls.js';
 document.addEventListener('DOMContentLoaded', Start);
  
 //VARIAVEIS
+let isInside = false;
+let messageDisplayed = false;
+let pressEText;
+let pressEKeyPressed = false;
+let radius = .07;
 var mixers = [];
 var clock = new THREE.Clock();
 var cena = new THREE.Scene();
 var renderer = new THREE.WebGLRenderer();
 //var camaraPerspetiva = new THREE.PerspectiveCamera(50,window.innerWidth / window.innerHeight,0.1,100);
-var camaraPerspetiva = new THREE.PerspectiveCamera(50,4/3,0.1,100);
+var camaraPerspetiva = new THREE.PerspectiveCamera(70,4/3,0.1,100);
 const interac = new OrbitControls(camaraPerspetiva, renderer.domElement);
 const controls = new PointerLockControls(camaraPerspetiva,renderer.domElement)
 camaraPerspetiva.position.set(0,.1,1.3);
-renderer.setSize(window.innerHeight +1820, window.innerWidth -1900);
+renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x87ceeb);
 document.body.appendChild(renderer.domElement);
 document.addEventListener(
@@ -26,6 +31,7 @@ document.addEventListener(
     false   
 );
 document.addEventListener("keydown", onDocumentKeyDown, false);
+
 
 CreateScene();
 CreateFountain();
@@ -100,6 +106,7 @@ function Start(){
 
 function loop(){
 
+    checkIntersection();
     requestAnimationFrame( loop );
 
 				if ( mixers.length > 0 ) {
@@ -111,8 +118,6 @@ function loop(){
 					}
 
 				}
-
-    renderer.render(cena,camaraPerspetiva);
 
     renderer.render(cena,camaraPerspetiva);
 
@@ -323,17 +328,17 @@ function CreateScene(){
 
 function CreateFence1(){
 
-    const boxGeometry1 = new THREE.BoxGeometry(.94, .07, .02);
-    const boxGeometry4 = new THREE.BoxGeometry(1.2, .07, .02);
-    const boxGeometry6 = new THREE.BoxGeometry(.3, .07, .02);
+    const boxGeometry1 = new THREE.BoxGeometry(.94, .07, .006);
+    const boxGeometry4 = new THREE.BoxGeometry(1.2, .07, .006);
+    const boxGeometry6 = new THREE.BoxGeometry(.3, .07, .006);
 
-    const boxGeometry2 = new THREE.BoxGeometry(.02, .07, .925);
-    const boxGeometry3 = new THREE.BoxGeometry(.02, .07, 1.2);
-    const boxGeometry5 = new THREE.BoxGeometry(.02, .07, .3);
+    const boxGeometry2 = new THREE.BoxGeometry(.006, .07, .925);
+    const boxGeometry3 = new THREE.BoxGeometry(.006, .07, 1.2);
+    const boxGeometry5 = new THREE.BoxGeometry(.006, .07, .3);
     
     let wallTexture = new THREE.TextureLoader().load('./Images/wall.png');
     wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(3.5, 1);
+    wallTexture.repeat.set(10, 1);
     const wallMaterial = new THREE.MeshPhongMaterial({
         map: wallTexture
     });
@@ -376,17 +381,17 @@ function CreateFence1(){
 
 function CreateFence2(){
 
-    const boxGeometry1 = new THREE.BoxGeometry(.94, .07, .02);
-    const boxGeometry4 = new THREE.BoxGeometry(1.2, .07, .02);
-    const boxGeometry6 = new THREE.BoxGeometry(.3, .07, .02);
+    const boxGeometry1 = new THREE.BoxGeometry(.94, .07, .006);
+    const boxGeometry4 = new THREE.BoxGeometry(1.2, .07, .006);
+    const boxGeometry6 = new THREE.BoxGeometry(.3, .07, .006);
 
-    const boxGeometry2 = new THREE.BoxGeometry(.02, .07, .925);
-    const boxGeometry3 = new THREE.BoxGeometry(.02, .07, 1.2);
-    const boxGeometry5 = new THREE.BoxGeometry(.02, .07, .3);
+    const boxGeometry2 = new THREE.BoxGeometry(.006, .07, .925);
+    const boxGeometry3 = new THREE.BoxGeometry(.006, .07, 1.2);
+    const boxGeometry5 = new THREE.BoxGeometry(.006, .07, .3);
     
     let wallTexture = new THREE.TextureLoader().load('./Images/wall.png');
     wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(3.5, 1);
+    wallTexture.repeat.set(10, 1);
     const wallMaterial = new THREE.MeshPhongMaterial({
         map: wallTexture
     });
@@ -429,17 +434,17 @@ function CreateFence2(){
   
 function CreateFence3(){
 
-    const boxGeometry1 = new THREE.BoxGeometry(.94, .07, .02);
-    const boxGeometry4 = new THREE.BoxGeometry(1.2, .07, .02);
-    const boxGeometry6 = new THREE.BoxGeometry(.3, .07, .02);
+    const boxGeometry1 = new THREE.BoxGeometry(.94, .07, .006);
+    const boxGeometry4 = new THREE.BoxGeometry(1.2, .07, .006);
+    const boxGeometry6 = new THREE.BoxGeometry(.3, .07, .006);
 
-    const boxGeometry2 = new THREE.BoxGeometry(.02, .07, .925);
-    const boxGeometry3 = new THREE.BoxGeometry(.02, .07, 1.2);
-    const boxGeometry5 = new THREE.BoxGeometry(.02, .07, .3);
+    const boxGeometry2 = new THREE.BoxGeometry(.006, .07, .925);
+    const boxGeometry3 = new THREE.BoxGeometry(.006, .07, 1.2);
+    const boxGeometry5 = new THREE.BoxGeometry(.006, .07, .3);
     
     let wallTexture = new THREE.TextureLoader().load('./Images/wall.png');
     wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(3.5, 1);
+    wallTexture.repeat.set(10, 1);
     const wallMaterial = new THREE.MeshPhongMaterial({
         map: wallTexture
     });
@@ -482,17 +487,17 @@ function CreateFence3(){
 
 function CreateFence4(){
 
-    const boxGeometry1 = new THREE.BoxGeometry(.94, .07, .02);
-    const boxGeometry4 = new THREE.BoxGeometry(1.2, .07, .02);
-    const boxGeometry6 = new THREE.BoxGeometry(.3, .07, .02);
+    const boxGeometry1 = new THREE.BoxGeometry(.94, .07, .006);
+    const boxGeometry4 = new THREE.BoxGeometry(1.2, .07, .006);
+    const boxGeometry6 = new THREE.BoxGeometry(.3, .07, .006);
 
-    const boxGeometry2 = new THREE.BoxGeometry(.02, .07, .925);
-    const boxGeometry3 = new THREE.BoxGeometry(.02, .07, 1.2);
-    const boxGeometry5 = new THREE.BoxGeometry(.02, .07, .3);
+    const boxGeometry2 = new THREE.BoxGeometry(.006, .07, .925);
+    const boxGeometry3 = new THREE.BoxGeometry(.006, .07, 1.2);
+    const boxGeometry5 = new THREE.BoxGeometry(.006, .07, .3);
     
     let wallTexture = new THREE.TextureLoader().load('./Images/wall.png');
     wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(3.5, 1);
+    wallTexture.repeat.set(10, 1);
     const wallMaterial = new THREE.MeshPhongMaterial({
         map: wallTexture
     });
@@ -536,7 +541,7 @@ function CreateFence4(){
 function CreateFountain(){
 
     //AGUA
-    let floorGeometry = new THREE.PlaneBufferGeometry(.5, .5, 1, 1);
+    let floorGeometry = new THREE.PlaneBufferGeometry(.47, .47, 1, 1);
     floorGeometry.rotateX(-Math.PI / 2);
     let floorTexture = new THREE.TextureLoader().load('./Images/water.png');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
@@ -551,12 +556,12 @@ function CreateFountain(){
     cena.add(floor);
 
     //MUROS
-    const boxGeometry1 = new THREE.BoxGeometry(.5, .07, .02);
-    const boxGeometry2 = new THREE.BoxGeometry(.02, .07, .5);
+    const boxGeometry1 = new THREE.BoxGeometry(.5, .07, .006);
+    const boxGeometry2 = new THREE.BoxGeometry(.006, .07, .5);
 
     let wallTexture = new THREE.TextureLoader().load('./Images/wall.png');
     wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(3, 2);
+    wallTexture.repeat.set(10, 2);
     const wallMaterial = new THREE.MeshPhongMaterial({
         map: wallTexture
     });
@@ -715,7 +720,7 @@ function Giraffe(){
         object.mixer = new THREE.AnimationMixer( object );
         mixers.push( object.mixer );
 
-        var action = object.mixer.clipAction( object.animations[ 1 ] );
+        var action = object.mixer.clipAction( object.animations[ 2 ] );
         action.play();
 
         object.traverse( function ( child ) {
@@ -803,7 +808,7 @@ function Elefant(){
         object.mixer = new THREE.AnimationMixer( object );
         mixers.push( object.mixer );
 
-        var action1 = object.mixer.clipAction( object.animations[ 0 ] );
+        var action1 = object.mixer.clipAction( object.animations[ 23 ] );
         action1.play();
 
         object.traverse( function ( child ) {
@@ -823,7 +828,7 @@ function Elefant(){
 
 }
 
-function Posts(x,z,w,t){
+function Postss(x,z,w,t){
 
     //CHAO
     let floorGeometry = new THREE.PlaneBufferGeometry(.03, .03, 1, 1);
@@ -845,4 +850,108 @@ function Posts(x,z,w,t){
     
     cena.add(floor);
 
+}
+
+function Posts(x, z, w, t) {
+
+    //CHAO
+    let floorGeometry = new THREE.PlaneBufferGeometry(.03, .03, 1, 1);
+    //floorGeometry.rotateX(-Math.PI / 2);
+    let floorTexture = new THREE.TextureLoader().load('./Images/coarkboard.png');
+    floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+    floorTexture.repeat.set(1,1);
+    const floorMaterial = new THREE.MeshPhongMaterial({
+        map: floorTexture
+    });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    //floorGeometry.rotateZ(45);
+    floor.rotation.z = THREE.MathUtils.degToRad(t);
+    floor.rotateY(w);
+
+    floor.position.x = x;
+    floor.position.y = 0.07;
+    floor.position.z = z;
+    
+    cena.add(floor);
+
+    // Criar raio
+     // Definir o raio desejado
+    let geometry = new THREE.CircleGeometry(radius,32);
+    geometry.rotateX(-Math.PI / 2);
+    let material = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: false, opacity: 0 });
+    let circle = new THREE.Mesh(geometry, material);
+    circle.position.x = x;
+    circle.position.y = 0.05;
+    circle.position.z = z;
+    cena.add(circle);
+
+    
+}
+
+function checkIntersection() {
+
+    // Obter a posição da câmera
+    const cameraPosition = new THREE.Vector3();
+    camaraPerspetiva.getWorldPosition(cameraPosition);
+
+    // Calcular a distância entre a posição da câmera e a posição do raio
+    const distance = Math.sqrt(
+        Math.pow(cameraPosition.x , 2) +
+        Math.pow(cameraPosition.y - 0.07, 2) +
+        Math.pow(cameraPosition.z , 2)
+    );
+
+    // Verificar se a câmera está dentro do raio
+    if (distance <= radius) {
+        isInside = true;
+    } else {
+        isInside = false;
+    }
+
+    if (isInside && !messageDisplayed) {
+        displayMessage();
+        messageDisplayed = true;
+    } else if (!isInside && messageDisplayed) {
+        removeMessage();
+        messageDisplayed = false;
+    }
+
+    if (pressEKeyPressed && messageDisplayed) {
+        // Exibir texto adicional ou executar ação
+        console.log("Texto exibido quando a tecla E é pressionada");
+    }
+}
+
+function displayMessage() {
+    let message = "Pressione 'E'";
+    let loader = new THREE.FontLoader();
+    loader.load('font.json', function (font) { // Substitua 'font.json' pelo caminho correto do arquivo de fonte
+        let textGeometry = new THREE.TextGeometry(message, {
+            font: font,
+            size: 0.1,
+            height: 0.01
+        });
+        let textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        pressEText = new THREE.Mesh(textGeometry, textMaterial);
+        pressEText.position.x = x;
+        pressEText.position.y = 0.2;
+        pressEText.position.z = z;
+        cena.add(pressEText);
+    });
+}
+
+function removeMessage() {
+    cena.remove(pressEText);
+}
+
+function onKeyDown(event) {
+    if (event.key === 'e' || event.key === 'E') {
+        pressEKeyPressed = true;
+    }
+}
+
+function onKeyUp(event) {
+    if (event.key === 'e' || event.key === 'E') {
+        pressEKeyPressed = false;
+    }
 }
