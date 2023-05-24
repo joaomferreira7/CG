@@ -32,7 +32,6 @@ document.addEventListener(
 );
 document.addEventListener("keydown", onDocumentKeyDown, false);
 
-
 CreateScene();
 CreateFountain();
 CreateFence1();
@@ -41,7 +40,7 @@ CreateFence3();
 CreateFence4();
 //Giraffe();
 //Moose();
-//Elefant();
+Elefant();
 Posts(0.1,.5, 4.7,-15);
 Posts(0.1,-.5, 4.7,-15);
 Posts(-0.1,.5, -4.7,15);
@@ -106,7 +105,7 @@ function Start(){
 
 function loop(){
 
-    checkIntersection();
+    //checkIntersection();
     requestAnimationFrame( loop );
 
 				if ( mixers.length > 0 ) {
@@ -120,7 +119,7 @@ function loop(){
 				}
 
     renderer.render(cena,camaraPerspetiva);
-
+    renderMinimap();
 
 }
 
@@ -955,3 +954,24 @@ function onKeyUp(event) {
         pressEKeyPressed = false;
     }
 }
+
+function renderMinimap() {
+    minimapRenderer.render(cena, minimapCamera);
+  }
+
+  //===========================Minimapa=====================================//
+// Criar câmera do minimapa
+const minimapCamera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 100);
+minimapCamera.position.set(0, 15, 0);
+minimapCamera.lookAt(cena.position);
+// Criar renderizador do minimapa
+const minimapRenderer = new THREE.WebGLRenderer({ alpha: true });
+minimapRenderer.setSize(1000, 600); // Defina o tamanho adequado para o minimapa
+document.body.appendChild(minimapRenderer.domElement); // Adicione o renderizador à página
+// Adicionar visualização do minimapa à página
+const minimapContainer = document.createElement('div');
+minimapContainer.style.position = 'absolute';
+minimapContainer.style.top = '20px'; // Defina a posição adequada para o minimapa
+minimapContainer.style.left = '0px'; // Defina a posição adequada para o minimapa
+minimapContainer.appendChild(minimapRenderer.domElement);
+document.body.appendChild(minimapContainer);
