@@ -3,6 +3,7 @@ import {FBXLoader}  from 'FBXLoader';
 import {PointerLockControls} from 'PointerLockControls';
 import { OrbitControls } from './OrbitControls.js';
 
+
 document.addEventListener('DOMContentLoaded', Start);
  
 //VARIAVEIS
@@ -11,6 +12,7 @@ let messageDisplayed = false;
 let pressEText;
 let pressEKeyPressed = false;
 let radius = .07;
+var AmbientLight1 = new THREE.AmbientLight( 0xffffff );
 var mixers = [];
 var clock = new THREE.Clock();
 var cena = new THREE.Scene();
@@ -23,85 +25,60 @@ camaraPerspetiva.position.set(0,.1,1.3);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x87ceeb);
 document.body.appendChild(renderer.domElement);
-document.addEventListener(
-    'click',
-    function(){
-        controls.lock()
-    },
-    false   
-);
-document.addEventListener("keydown", onDocumentKeyDown, false);
-
-CreateScene();
-CreateFountain();
-CreateFence1();
-CreateFence2();
-CreateFence3();
-CreateFence4();
-//Giraffe();
-//Moose();
-Elefant();
-Posts(0.1,.5, 4.7,-15);
-Posts(0.1,-.5, 4.7,-15);
-Posts(-0.1,.5, -4.7,15);
-Posts(-0.1,-.5, -4.7,15);
-
-
-function onDocumentKeyDown(event){
-    var keyCode = event.which;
-    if(keyCode == 87){
-        controls.moveForward(0.05)
-    } 
-    else if(keyCode == 83){
-        controls.moveForward(-0.05)
-    }
-    else if(keyCode == 65){
-        controls.moveRight(-0.05)
-    }
-    else if(keyCode == 68){
-        controls.moveRight(0.05)
-    }
-}
 
 function Start(){
 
-    var DirecLight = new THREE.DirectionalLight(0xffffff, 2);
-    var AmbientLight = new THREE.AmbientLight( 0xffffff );
+    const blocker = document.getElementById('blocker');
+    const instructions = document.getElementById('instructions');
 
-    DirecLight.position.set(0,50,0);
+    instructions.addEventListener('click', function() {
+        controls.lock();
+    }, false);
 
-    //cena.add(DirecLight);
-    cena.add(AmbientLight);
+    controls.addEventListener('lock', function() {
+        instructions.style.display = 'none';
+        blocker.style.display = 'none';
+    });
 
-    
-    requestAnimationFrame(loop);
+    controls.addEventListener('unlock', function() {
+        blocker.style.display = 'block';
+        instructions.style.display = '';
+    });
+    document.addEventListener("keydown", onDocumentKeyDown, false);
 
-    var texture_dir = new THREE.TextureLoader().load('./Images/asphalt.jpg');
-    var texture_esq = new THREE.TextureLoader().load('./Images/asphalt.jpg');
-    var texture_up = new THREE.TextureLoader().load('./Images/asphalt.jpg');
-    var texture_dn = new THREE.TextureLoader().load('./Images/asphalt.jpg');
-    var texture_bk = new THREE.TextureLoader().load('./Images/asphalt.jpg');
-    var texture_ft = new THREE.TextureLoader().load('./Images/asphalt.jpg');
+    function onDocumentKeyDown(event){
+        var keyCode = event.which;
+        if(keyCode == 87){
+            controls.moveForward(0.05)
+        } 
+        else if(keyCode == 83){
+            controls.moveForward(-0.05)
+        }
+        else if(keyCode == 65){
+            controls.moveRight(-0.05)
+        }
+        else if(keyCode == 68){
+            controls.moveRight(0.05)
+        }
+    }
+    cena.add(controls.getObject());
 
-    var materialArray = [];
-
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_dir}));
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_esq}))
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_up}))
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_dn}))
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_bk}))
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_ft}))
-
-
-    for (var i=0; i<6; i++)
-        materialArray[i].side = THREE.BackSide;
-
-    var skyboxGeo = new THREE.BoxGeometry(15,15,15);
-    var skybox = new THREE.Mesh(skyboxGeo,materialArray);
-    //cena.add(skybox);
-
-  
+    CreateScene();
+    CreateFountain();
+    CreateFence1();
+    CreateFence2();
+    CreateFence3();
+    CreateFence4();
+    //Giraffe();
+    //Moose();
+    //Elefant();
+    Posts(0.1,.5, 4.7,-15);
+    Posts(0.1,-.5, 4.7,-15);
+    Posts(-0.1,.5, -4.7,15);
+    Posts(-0.1,-.5, -4.7,15);
+    renderMinimap() 
 }
+
 
 function loop(){
 
@@ -124,9 +101,9 @@ function loop(){
 }
 
 function CreateScene(){
-
+    cena.add(AmbientLight1);
     //CHAO
-    let floorGeometry = new THREE.PlaneBufferGeometry(3, 3, 1, 1);
+    let floorGeometry = new THREE.PlaneGeometry(3, 3, 1, 1);
     floorGeometry.rotateX(-Math.PI / 2);
     let floorTexture = new THREE.TextureLoader().load('./Images/grass.jpg');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
@@ -141,8 +118,8 @@ function CreateScene(){
     cena.add(floor);
 
     //PATHS
-    let pathGeometry = new THREE.PlaneBufferGeometry(.2, .7, 1, 1);
-    let pathGeometry1 = new THREE.PlaneBufferGeometry(.7, .2, 1, 1);
+    let pathGeometry = new THREE.PlaneGeometry(.2, .7, 1, 1);
+    let pathGeometry1 = new THREE.PlaneGeometry(.7, .2, 1, 1);
     pathGeometry.rotateX(-Math.PI / 2);
     pathGeometry1.rotateX(-Math.PI / 2);
     let pathTexture = new THREE.TextureLoader().load('./Images/path.png');
@@ -540,7 +517,7 @@ function CreateFence4(){
 function CreateFountain(){
 
     //AGUA
-    let floorGeometry = new THREE.PlaneBufferGeometry(.47, .47, 1, 1);
+    let floorGeometry = new THREE.PlaneGeometry(.47, .47, 1, 1);
     floorGeometry.rotateX(-Math.PI / 2);
     let floorTexture = new THREE.TextureLoader().load('./Images/water.png');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
@@ -587,8 +564,8 @@ function CreateFountain(){
     cena.add(wall9,wall10,wall11,wall12);
 
     //PATHS FONTE
-    let pathGeometry = new THREE.PlaneBufferGeometry(.1, .28, 1, 1);
-    let pathGeometry1 = new THREE.PlaneBufferGeometry(.15, .15, 1, 1);
+    let pathGeometry = new THREE.PlaneGeometry(.1, .28, 1, 1);
+    let pathGeometry1 = new THREE.PlaneGeometry(.15, .15, 1, 1);
     pathGeometry.rotateX(-Math.PI / 2);
     pathGeometry1.rotateX(-Math.PI / 2);
     let pathTexture = new THREE.TextureLoader().load('./Images/path.png');
@@ -830,7 +807,7 @@ function Elefant(){
 function Postss(x,z,w,t){
 
     //CHAO
-    let floorGeometry = new THREE.PlaneBufferGeometry(.03, .03, 1, 1);
+    let floorGeometry = new THREE.PlaneGeometry(.03, .03, 1, 1);
     //floorGeometry.rotateX(-Math.PI / 2);
     let floorTexture = new THREE.TextureLoader().load('./Images/coarkboard.png');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
@@ -854,7 +831,7 @@ function Postss(x,z,w,t){
 function Posts(x, z, w, t) {
 
     //CHAO
-    let floorGeometry = new THREE.PlaneBufferGeometry(.03, .03, 1, 1);
+    let floorGeometry = new THREE.PlaneGeometry(.03, .03, 1, 1);
     //floorGeometry.rotateX(-Math.PI / 2);
     let floorTexture = new THREE.TextureLoader().load('./Images/coarkboard.png');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
@@ -956,22 +933,29 @@ function onKeyUp(event) {
 }
 
 function renderMinimap() {
-    minimapRenderer.render(cena, minimapCamera);
-  }
 
-  //===========================Minimapa=====================================//
-// Criar câmera do minimapa
-const minimapCamera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 100);
-minimapCamera.position.set(0, 15, 0);
-minimapCamera.lookAt(cena.position);
-// Criar renderizador do minimapa
-const minimapRenderer = new THREE.WebGLRenderer({ alpha: true });
-minimapRenderer.setSize(1000, 600); // Defina o tamanho adequado para o minimapa
-document.body.appendChild(minimapRenderer.domElement); // Adicione o renderizador à página
-// Adicionar visualização do minimapa à página
-const minimapContainer = document.createElement('div');
-minimapContainer.style.position = 'absolute';
-minimapContainer.style.top = '20px'; // Defina a posição adequada para o minimapa
-minimapContainer.style.left = '0px'; // Defina a posição adequada para o minimapa
-minimapContainer.appendChild(minimapRenderer.domElement);
-document.body.appendChild(minimapContainer);
+    // Criar câmera do minimapa
+    var minimapCamera = new THREE.OrthographicCamera(
+        window.innerWidth /-500, // left
+        window.innerWidth /500, // right
+        window.innerHeight /500, // top
+        window.innerHeight / -500 , // bottom
+        0.1, // near
+        1000 // far
+    );
+    minimapCamera.position.set(0, 20, 0);
+    minimapCamera.lookAt(cena.position);
+    // Criar renderizador do minimapa
+    const minimapRenderer = new THREE.WebGLRenderer({ alpha: true });
+    minimapRenderer.setSize(200, 150); // Defina o tamanho adequado para o minimapa
+    document.body.appendChild(minimapRenderer.domElement); // Adicione o renderizador à página
+    // Adicionar visualização do minimapa à página
+    const minimapContainer = document.createElement('div');
+    minimapContainer.style.position = 'absolute';
+    minimapContainer.style.top = '20px'; // Defina a posição adequada para o minimapa
+    minimapContainer.style.left = '20px'; // Defina a posição adequada para o minimapa
+    minimapContainer.appendChild(minimapRenderer.domElement);
+    document.body.appendChild(minimapContainer);
+    minimapRenderer.render(cena, minimapCamera);
+}
+

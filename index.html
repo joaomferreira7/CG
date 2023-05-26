@@ -1,13 +1,7 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>
-            ZOO VILA REAL
-        </title>
-    </head>
     <body>
         <script async="" src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-        
         <script type="importmap">
             {
                 "imports":{
@@ -17,8 +11,61 @@
                 }
             }
         </script>
-
         <script type="module" src="./JavaScript/appThree.js"></script>
-
     </body>
-</html>z
+    <head>
+        <title>ZOO VILA REAL</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="./main.css">
+        <style>
+            #blocker {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0);
+            }
+            
+            #instructions {
+                width: 100%;
+                height: 100%;
+                display: -webkit-box;
+                display: -moz-box;
+                display: box;
+                -webkit-box-orient: horizontal;
+                -moz-box-orient: horizontal;
+                box-orient: horizontal;
+                -webkit-box-pack: center;
+                -moz-box-pack: center;
+                box-pack: center;
+                -webkit-box-align: center;
+                -moz-box-align: center;
+                box-align: center;
+                color: #ffffff;
+                text-align: center;
+                font-family: Arial;
+                font-size: 14px;
+                line-height: 24px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="blocker">
+            <div id="instructions">
+                <span style="font-size:36px">ZOO VILA REAL</span>
+                <br /><br /> Move: W A S D<br /> Look Around: MOUSE<br /> Control Lights : J & K & L<br /> Control Animation : B <br><br><br><br><br> 
+                <br><br/> 
+                <br><br/> 
+                <br><br/> 
+                <br><br/>
+                <br><br/>
+                <br><br/>
+                <br><br/>
+                <span style="font-size:18px">João Ferreira&emsp;&emsp;Jorge Pinto&emsp;&emsp;Vitor Nunes</span> 
+            </div>
+        </div>
+        <!-- Importing the Main Js file that includes all the project data. -->
+        <script type="module" src="./JavaScript/appThree.js"></script>
+    </body>
+</html>
