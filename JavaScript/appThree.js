@@ -77,6 +77,8 @@ function Start(){
     Posts(-0.1,.5, -4.7,15);
     Posts(-0.1,-.5, -4.7,15);
     renderMinimap() 
+
+    requestAnimationFrame(loop);
 }
 
 
