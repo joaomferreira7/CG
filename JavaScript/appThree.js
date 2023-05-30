@@ -6,127 +6,156 @@ import { OrbitControls } from './OrbitControls.js';
 document.addEventListener('DOMContentLoaded', Start);
  
 //VARIAVEIS
-let isInside = false;
-let messageDisplayed = false;
-let pressEText;
-let pressEKeyPressed = false;
-let radius = .07;
+var action
+var model;
+var AmbientLight1 = new THREE.AmbientLight( 0xffffff);
+var spotlight = new THREE.SpotLight(0xffffff);
+spotlight.position.set(0,5,0);
+spotlight.castShadow = true;
+//spotlight.distance = 100;
 var mixers = [];
 var clock = new THREE.Clock();
 var cena = new THREE.Scene();
 var renderer = new THREE.WebGLRenderer();
-//var camaraPerspetiva = new THREE.PerspectiveCamera(50,window.innerWidth / window.innerHeight,0.1,100);
-var camaraPerspetiva = new THREE.PerspectiveCamera(70,4/3,0.1,100);
-const interac = new OrbitControls(camaraPerspetiva, renderer.domElement);
+var camaraPerspetiva = new THREE.PerspectiveCamera(50,window.innerWidth / window.innerHeight,.01,100);
+//var camaraPerspetiva = new THREE.PerspectiveCamera(50,4/3,0.1,100);
 const controls = new PointerLockControls(camaraPerspetiva,renderer.domElement)
 camaraPerspetiva.position.set(0,.1,1.3);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x87ceeb);
 document.body.appendChild(renderer.domElement);
-document.addEventListener(
-    'click',
-    function(){
-        controls.lock()
-    },
-    false   
+const radius = .01;
+cena.add(AmbientLight1);
+// Criar câmera do minimapa
+var minimapCamera = new THREE.OrthographicCamera(
+    window.innerWidth /-500, // left
+    window.innerWidth /500, // right
+    window.innerHeight /500, // top
+    window.innerHeight / -500 , // bottom
+    0.1, // near
+    800 // far
 );
-document.addEventListener("keydown", onDocumentKeyDown, false);
-
-CreateScene();
-CreateFountain();
-CreateFence1();
-CreateFence2();
-CreateFence3();
-CreateFence4();
-//Giraffe();
-//Moose();
-Elefant();
-Posts(0.1,.5, 4.7,-15);
-Posts(0.1,-.5, 4.7,-15);
-Posts(-0.1,.5, -4.7,15);
-Posts(-0.1,-.5, -4.7,15);
-
-
-function onDocumentKeyDown(event){
-    var keyCode = event.which;
-    if(keyCode == 87){
-        controls.moveForward(0.05)
-    } 
-    else if(keyCode == 83){
-        controls.moveForward(-0.05)
-    }
-    else if(keyCode == 65){
-        controls.moveRight(-0.05)
-    }
-    else if(keyCode == 68){
-        controls.moveRight(0.05)
-    }
-}
+minimapCamera.position.set(0, 20, 0);
+minimapCamera.lookAt(cena.position);
+// Criar renderizador do minimapa
+const minimapRenderer = new THREE.WebGLRenderer({ alpha: true });
+minimapRenderer.setSize(500, 350); // Defina o tamanho adequado para o minimapa
+document.body.appendChild(minimapRenderer.domElement); // Adicione o renderizador à página
 
 function Start(){
 
-    var DirecLight = new THREE.DirectionalLight(0xffffff, 2);
-    var AmbientLight = new THREE.AmbientLight( 0xffffff );
+    cena.add(AmbientLight1);
 
-    DirecLight.position.set(0,50,0);
+    const blocker = document.getElementById('blocker');
+    const instructions = document.getElementById('instructions');
 
-    //cena.add(DirecLight);
-    cena.add(AmbientLight);
+    instructions.addEventListener('click', function() {
+        controls.lock();
+    }, false);
 
+    controls.addEventListener('lock', function() {
+        instructions.style.display = 'none';
+        blocker.style.display = 'none';
+    });
+
+    controls.addEventListener('unlock', function() {
+        blocker.style.display = 'block';
+        instructions.style.display = '';
+    });
+    document.addEventListener("keydown", onDocumentKeyDown, false);
+
+    function onDocumentKeyDown(event){
+        switch(event.keyCode){
+            case 38:
+            case 87:
+                controls.moveForward(0.01);
+                break;
+
+            case 37:
+            case 65:
+                controls.moveRight(-0.01);
+                break;
+            case 40:
+            case 83:
+                controls.moveForward(-0.01);
+                break;
+            case 39:
+            case 68:
+                controls.moveRight(0.01);
+                break;
+            case 74://J
+                //spotlight.target = model;
+                cena.add(spotlight); 
+                break;
+            case 75://K
+                cena.remove(spotlight); 
+                break;
+            case 76://L
+                cena.remove(AmbientLight1); 
+                break;
+            case 66://L
+                cena.add(AmbientLight1); 
+                break;    
+        }
     
+    }
+    cena.add(controls.getObject());
+
+    CreateScene();
+    CreateFountain();
+    CreateFence1();
+    CreateFence2();
+    CreateFence3();
+    CreateFence4();
+    Giraffe();
+    Giraffe();
+    Moose();
+    Moose();
+    lion();
+    lion();
+    bird();
+    bird();
+    bird();
+    bird();
+    bird();
+    bird();
+    bird();
+    bird();
+    bird();
+    Elefant();
+    Elefant();
+    Human();
+    Postss(0.115,.5, 4.7,-15);
+    Postss(0.1,-.5, 4.7,-15);
+    Postss(-0.115,.5, -4.7,15);
+    Postss(-0.1,-.5, -4.7,15);
+    //renderMinimap() 
+
     requestAnimationFrame(loop);
-
-    var texture_dir = new THREE.TextureLoader().load('./Images/asphalt.jpg');
-    var texture_esq = new THREE.TextureLoader().load('./Images/asphalt.jpg');
-    var texture_up = new THREE.TextureLoader().load('./Images/asphalt.jpg');
-    var texture_dn = new THREE.TextureLoader().load('./Images/asphalt.jpg');
-    var texture_bk = new THREE.TextureLoader().load('./Images/asphalt.jpg');
-    var texture_ft = new THREE.TextureLoader().load('./Images/asphalt.jpg');
-
-    var materialArray = [];
-
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_dir}));
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_esq}))
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_up}))
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_dn}))
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_bk}))
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_ft}))
-
-
-    for (var i=0; i<6; i++)
-        materialArray[i].side = THREE.BackSide;
-
-    var skyboxGeo = new THREE.BoxGeometry(15,15,15);
-    var skybox = new THREE.Mesh(skyboxGeo,materialArray);
-    //cena.add(skybox);
-
-  
 }
 
 function loop(){
 
-    //checkIntersection();
     requestAnimationFrame( loop );
 
-				if ( mixers.length > 0 ) {
+    if ( mixers.length > 0 ) {
 
-					for ( var i = 0; i < mixers.length; i ++ ) {
+        for ( var i = 0; i < mixers.length; i ++ ) {
 
-						mixers[ i ].update( clock.getDelta() );
+            mixers[ i ].update( clock.getDelta() );
 
-					}
+        }
 
-				}
-
+    }
+    renderMinimap() ;
     renderer.render(cena,camaraPerspetiva);
-    renderMinimap();
 
 }
 
 function CreateScene(){
-
+    
     //CHAO
-    let floorGeometry = new THREE.PlaneBufferGeometry(3, 3, 1, 1);
+    let floorGeometry = new THREE.PlaneGeometry(3, 3, 1, 1);
     floorGeometry.rotateX(-Math.PI / 2);
     let floorTexture = new THREE.TextureLoader().load('./Images/grass.jpg');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
@@ -141,8 +170,8 @@ function CreateScene(){
     cena.add(floor);
 
     //PATHS
-    let pathGeometry = new THREE.PlaneBufferGeometry(.2, .7, 1, 1);
-    let pathGeometry1 = new THREE.PlaneBufferGeometry(.7, .2, 1, 1);
+    let pathGeometry = new THREE.PlaneGeometry(.2, .7, 1, 1);
+    let pathGeometry1 = new THREE.PlaneGeometry(.7, .2, 1, 1);
     pathGeometry.rotateX(-Math.PI / 2);
     pathGeometry1.rotateX(-Math.PI / 2);
     let pathTexture = new THREE.TextureLoader().load('./Images/path.png');
@@ -173,7 +202,7 @@ function CreateScene(){
     path4.position.y = 0.001;
     path4.position.z = -1.2;
 
-    cena.add(path,path1,path3,path4);
+    floor.add(path,path1,path3,path4);
 
     //Centrais Z
     const path6 = new THREE.Mesh(pathGeometry1, pathMaterial);
@@ -196,7 +225,7 @@ function CreateScene(){
     path10.position.y = 0.001;
     path10.position.z = 0;
 
-    cena.add(path6,path7,path9,path10);
+    floor.add(path6,path7,path9,path10);
 
     //Horizontais Z-
     const path12 = new THREE.Mesh(pathGeometry1, pathMaterial);
@@ -219,7 +248,7 @@ function CreateScene(){
     path16.position.y = 0.001;
     path16.position.z = -1.4;
 
-    cena.add(path12,path13,path15,path16);
+    floor.add(path12,path13,path15,path16);
 
     //Horizontais Z+
     const path18 = new THREE.Mesh(pathGeometry1, pathMaterial);
@@ -242,7 +271,7 @@ function CreateScene(){
     path22.position.y = 0.001;
     path22.position.z = 1.4;
 
-    cena.add(path18,path19,path21,path22);
+    floor.add(path18,path19,path21,path22);
 
     //Verticais X-
     const path24 = new THREE.Mesh(pathGeometry, pathMaterial);
@@ -265,7 +294,7 @@ function CreateScene(){
     path28.position.y = 0.001;
     path28.position.z = .45;
 
-    cena.add(path24,path25,path27,path28);
+    floor.add(path24,path25,path27,path28);
 
     //Verticais X+
     const path26 = new THREE.Mesh(pathGeometry, pathMaterial);
@@ -288,7 +317,7 @@ function CreateScene(){
     path31.position.y = 0.001;
     path31.position.z = .45;
 
-    cena.add(path26,path29,path30,path31);
+    floor.add(path26,path29,path30,path31);
 
     //PAREDES
     const boxGeometry1 = new THREE.BoxGeometry(3, .2, .02);
@@ -322,7 +351,7 @@ function CreateScene(){
 
 
 
-    cena.add(wall2,wall1,wall3,wall4);
+    floor.add(wall2,wall1,wall3,wall4);
 }
 
 function CreateFence1(){
@@ -540,7 +569,7 @@ function CreateFence4(){
 function CreateFountain(){
 
     //AGUA
-    let floorGeometry = new THREE.PlaneBufferGeometry(.47, .47, 1, 1);
+    let floorGeometry = new THREE.PlaneGeometry(.47, .47, 1, 1);
     floorGeometry.rotateX(-Math.PI / 2);
     let floorTexture = new THREE.TextureLoader().load('./Images/water.png');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
@@ -587,8 +616,8 @@ function CreateFountain(){
     cena.add(wall9,wall10,wall11,wall12);
 
     //PATHS FONTE
-    let pathGeometry = new THREE.PlaneBufferGeometry(.1, .28, 1, 1);
-    let pathGeometry1 = new THREE.PlaneBufferGeometry(.15, .15, 1, 1);
+    let pathGeometry = new THREE.PlaneGeometry(.1, .28, 1, 1);
+    let pathGeometry1 = new THREE.PlaneGeometry(.15, .15, 1, 1);
     pathGeometry.rotateX(-Math.PI / 2);
     pathGeometry1.rotateX(-Math.PI / 2);
     let pathTexture = new THREE.TextureLoader().load('./Images/path.png');
@@ -714,12 +743,12 @@ function Giraffe(){
 
     // model
     var loader = new FBXLoader();
-    loader.load( './Objetos/giraffe/source/untitled.fbx', function ( object ) {
+    loader.load( './Objetos/giraffe/source/untitled.fbx', function ( object) {
 
         object.mixer = new THREE.AnimationMixer( object );
         mixers.push( object.mixer );
 
-        var action = object.mixer.clipAction( object.animations[ 2 ] );
+        action = object.mixer.clipAction( object.animations[ 2 ] );
         action.play();
 
         object.traverse( function ( child ) {
@@ -730,13 +759,75 @@ function Giraffe(){
 
         }});
 
-        object.rotateY(2);
-        object.position.set(-.3,0,.9);
+        var r = Math.random() * (5 - 1) + 2;
+        var x = Math.random()* (-1.2 + .2) - .2;
+        var y = Math.random()* (1.2 - .2) + .2;
+        object.rotateY(r);
+        object.position.set(x,0,y);
         object.scale.set(0.00002,.00002,0.00002);
         cena.add( object );
 
+        model=object;
+
     } );      
 
+}
+
+function bird(){
+    // model
+    var loader = new FBXLoader();
+    loader.load( './Objetos/bird/source/bird.fbx', function ( object ) {
+
+        object.mixer = new THREE.AnimationMixer( object );
+        mixers.push( object.mixer );
+
+        var action = object.mixer.clipAction( object.animations[ 0 ] );
+        action.play();
+        action.timeScale = 7;
+
+        object.traverse( function ( child ) {
+        if ( child.isMesh ) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            
+
+        }});
+
+        var r = Math.random() * (5 - 1) + 2;
+        var x = Math.random()* (-1.2 - 1.2) + 1.2;
+        var y = Math.random()* (-1.2 - 1.2) + 1.2;
+        var z = Math.random()* (0.7 - .5) + .5;
+        object.rotateY(r);
+        object.position.set(x,z,y);
+        object.scale.set(.007,.007,.007);
+        cena.add( object );
+
+        var clock = new THREE.Clock();
+        var speed = 0.1;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            var delta = clock.getDelta();
+            object.position.x += delta * speed; // Move the object horizontally
+            object.position.z += delta * speed;
+
+            // Check if the object exceeds the x-axis limits
+            if (object.position.x > 1.5 || object.position.x < -1.5) {
+                speed *= -1; // Reverse the direction
+            }
+
+            // Check if the object exceeds the z-axis limits
+            if (object.position.z > 1.5 || object.position.z < -1.5) {
+                speed *= -1; // Reverse the direction
+            }
+
+            object.mixer.update(delta);
+        }
+
+        animate();
+
+    } ); 
 }
 
 function lion(){
@@ -759,8 +850,11 @@ function lion(){
 
         }});
 
-        object.rotateY(2);
-        object.position.set(-.55,0,.75);
+        var r = Math.random() * (5 - 1) + 2;
+        var x = Math.random()* (-1.2 + .2) - .2;
+        var y = Math.random()* (-1.2 + .2) - .2;
+        object.rotateY(r);
+        object.position.set(x,0,y);
         object.scale.set(.0007,.0007,.0007);
         cena.add( object );
 
@@ -789,8 +883,11 @@ function Moose(){
 
         }});
 
-        object.rotateY(5);
-        object.position.set(.4,0,.7);
+        var r = Math.random() * (5 - 1) + 2;
+        var x = Math.random()* (1.2 - .2) + .2;
+        var y = Math.random()* (1.2 - .2) + .2;
+        object.rotateY(r);
+        object.position.set(x,0,y);
         object.scale.set(0.0015,.0015,0.0015);
         cena.add( object );
 
@@ -802,13 +899,13 @@ function Elefant(){
 
     // model
     var loader = new FBXLoader();
-    loader.load( './Objetos/gorilla/source/Gorilla+motions.fbx', function ( object ) {
+    loader.load( './Objetos/horse/source/horse.fbx', function ( object ) {
 
-        object.mixer = new THREE.AnimationMixer( object );
-        mixers.push( object.mixer );
+        //object.mixer = new THREE.AnimationMixer( object );
+        //mixers.push( object.mixer );
 
-        var action1 = object.mixer.clipAction( object.animations[ 23 ] );
-        action1.play();
+        //var action1 = object.mixer.clipAction( object.animations[ 0 ] );
+        //action1.play();
 
         object.traverse( function ( child ) {
         if ( child.isMesh ) {
@@ -818,9 +915,41 @@ function Elefant(){
 
         }});
 
-        object.rotateY(5);
-        object.position.set(.4,.1,.7);
-        object.scale.set(0.0006,.0006,0.0006);
+        var r = Math.random() * (5 - 1) + 2;
+        var x = Math.random()* (1.2 - .2) + .2;
+        var y = Math.random()* (-1.2 + .2) - .2;
+        object.rotateY(r);
+        object.position.set(x,0.05,y);
+        object.scale.set(.0002,.0002,.0002);
+        cena.add( object );
+
+    } );      
+
+}
+
+function Human(){
+
+    // model
+    var loader = new FBXLoader();
+    loader.load( './Objetos/full-body/source/untitled.fbx', function ( object ) {
+
+        //object.mixer = new THREE.AnimationMixer( object );
+        //mixers.push( object.mixer );
+
+        //var action1 = object.mixer.clipAction( object.animations[ 0 ] );
+        //action1.play();
+
+        object.traverse( function ( child ) {
+        if ( child.isMesh ) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            
+
+        }});
+
+        object.rotateY(7.5);
+        object.position.set(0.08,0.06,.5);
+        object.scale.set(.0006,.0006,.0006);
         cena.add( object );
 
     } );      
@@ -830,7 +959,7 @@ function Elefant(){
 function Postss(x,z,w,t){
 
     //CHAO
-    let floorGeometry = new THREE.PlaneBufferGeometry(.03, .03, 1, 1);
+    let floorGeometry = new THREE.PlaneGeometry(.02, .02, 1, 1);
     //floorGeometry.rotateX(-Math.PI / 2);
     let floorTexture = new THREE.TextureLoader().load('./Images/coarkboard.png');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
@@ -844,134 +973,22 @@ function Postss(x,z,w,t){
     floor.rotateY(w);
 
     floor.position.x = x;
-    floor.position.y = 0.07;
+    floor.position.y = 0.05;
     floor.position.z = z;
     
     cena.add(floor);
 
-}
-
-function Posts(x, z, w, t) {
-
-    //CHAO
-    let floorGeometry = new THREE.PlaneBufferGeometry(.03, .03, 1, 1);
-    //floorGeometry.rotateX(-Math.PI / 2);
-    let floorTexture = new THREE.TextureLoader().load('./Images/coarkboard.png');
-    floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-    floorTexture.repeat.set(1,1);
-    const floorMaterial = new THREE.MeshPhongMaterial({
-        map: floorTexture
-    });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    //floorGeometry.rotateZ(45);
-    floor.rotation.z = THREE.MathUtils.degToRad(t);
-    floor.rotateY(w);
-
-    floor.position.x = x;
-    floor.position.y = 0.07;
-    floor.position.z = z;
-    
-    cena.add(floor);
-
-    // Criar raio
-     // Definir o raio desejado
-    let geometry = new THREE.CircleGeometry(radius,32);
-    geometry.rotateX(-Math.PI / 2);
-    let material = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: false, opacity: 0 });
-    let circle = new THREE.Mesh(geometry, material);
-    circle.position.x = x;
-    circle.position.y = 0.05;
-    circle.position.z = z;
-    cena.add(circle);
-
-    
-}
-
-function checkIntersection() {
-
-    // Obter a posição da câmera
-    const cameraPosition = new THREE.Vector3();
-    camaraPerspetiva.getWorldPosition(cameraPosition);
-
-    // Calcular a distância entre a posição da câmera e a posição do raio
-    const distance = Math.sqrt(
-        Math.pow(cameraPosition.x , 2) +
-        Math.pow(cameraPosition.y - 0.07, 2) +
-        Math.pow(cameraPosition.z , 2)
-    );
-
-    // Verificar se a câmera está dentro do raio
-    if (distance <= radius) {
-        isInside = true;
-    } else {
-        isInside = false;
-    }
-
-    if (isInside && !messageDisplayed) {
-        displayMessage();
-        messageDisplayed = true;
-    } else if (!isInside && messageDisplayed) {
-        removeMessage();
-        messageDisplayed = false;
-    }
-
-    if (pressEKeyPressed && messageDisplayed) {
-        // Exibir texto adicional ou executar ação
-        console.log("Texto exibido quando a tecla E é pressionada");
-    }
-}
-
-function displayMessage() {
-    let message = "Pressione 'E'";
-    let loader = new THREE.FontLoader();
-    loader.load('font.json', function (font) { // Substitua 'font.json' pelo caminho correto do arquivo de fonte
-        let textGeometry = new THREE.TextGeometry(message, {
-            font: font,
-            size: 0.1,
-            height: 0.01
-        });
-        let textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        pressEText = new THREE.Mesh(textGeometry, textMaterial);
-        pressEText.position.x = x;
-        pressEText.position.y = 0.2;
-        pressEText.position.z = z;
-        cena.add(pressEText);
-    });
-}
-
-function removeMessage() {
-    cena.remove(pressEText);
-}
-
-function onKeyDown(event) {
-    if (event.key === 'e' || event.key === 'E') {
-        pressEKeyPressed = true;
-    }
-}
-
-function onKeyUp(event) {
-    if (event.key === 'e' || event.key === 'E') {
-        pressEKeyPressed = false;
-    }
 }
 
 function renderMinimap() {
+    
+   
+    // Adicionar visualização do minimapa à página
+    const minimapContainer = document.createElement('div');
+    minimapContainer.style.position = 'absolute';
+    minimapContainer.style.top = '40px'; // Defina a posição adequada para o minimapa
+    minimapContainer.style.left = '40px'; // Defina a posição adequada para o minimapa
+    minimapContainer.appendChild(minimapRenderer.domElement);
+    document.body.appendChild(minimapContainer);
     minimapRenderer.render(cena, minimapCamera);
-  }
-
-  //===========================Minimapa=====================================//
-// Criar câmera do minimapa
-const minimapCamera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 100);
-minimapCamera.position.set(0, 15, 0);
-minimapCamera.lookAt(cena.position);
-// Criar renderizador do minimapa
-const minimapRenderer = new THREE.WebGLRenderer({ alpha: true });
-minimapRenderer.setSize(1000, 600); // Defina o tamanho adequado para o minimapa
-document.body.appendChild(minimapRenderer.domElement); // Adicione o renderizador à página
-// Adicionar visualização do minimapa à página
-const minimapContainer = document.createElement('div');
-minimapContainer.style.position = 'absolute';
-minimapContainer.style.top = '20px'; // Defina a posição adequada para o minimapa
-minimapContainer.style.left = '0px'; // Defina a posição adequada para o minimapa
-minimapContainer.appendChild(minimapRenderer.domElement);
-document.body.appendChild(minimapContainer);
+}
